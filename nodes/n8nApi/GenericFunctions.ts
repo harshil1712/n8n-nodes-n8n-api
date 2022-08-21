@@ -13,7 +13,7 @@ export async function apiRequest(
 	uri?: string,
 	option: IDataObject = {},
 ): Promise<any> {
-	const credentials = await this.getCredentials('N8nApi');
+	const credentials = await this.getCredentials('n8nApi');
 	query = query || {};
 	const options: OptionsWithUri = {
 		headers: {

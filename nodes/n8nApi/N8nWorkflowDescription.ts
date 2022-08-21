@@ -17,18 +17,43 @@ export const n8nWorkflowDescription: INodeProperties[] = [
 				name: 'Get All',
 				value: 'getAll',
 				action: 'Get all n8n workflows',
-				routing: {
-					request: {
-						method: 'GET',
-						url: '/workflows',
-					},
-				},
 			},
 		],
 	},
 ];
 
 const getAllOperation: INodeProperties[] = [
+	{
+		displayName: 'Return All',
+		name: 'returnAll',
+		type: 'boolean',
+		displayOptions: {
+			show: {
+				resource: ['workflow'],
+				operation: ['getAll'],
+			},
+		},
+		default: false,
+		description: 'Whether to return all results or only up to a given limit',
+	},
+	{
+		displayName: 'Limit',
+		name: 'limit',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['workflow'],
+				operation: ['getAll'],
+				returnAll: [false],
+			},
+		},
+		typeOptions: {
+			minValue: 1,
+			maxValue: 250,
+		},
+		default: 50,
+		description: 'Max number of results to return',
+	},
 	{
 		displayName: 'Additional Fields',
 		name: 'additionalFields',

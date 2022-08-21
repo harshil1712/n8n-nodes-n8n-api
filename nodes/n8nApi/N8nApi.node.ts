@@ -1,7 +1,7 @@
 import { IExecuteFunctions } from 'n8n-core';
 import { IDataObject, INodeExecutionData, INodeType, INodeTypeDescription } from 'n8n-workflow';
 import { apiRequest } from './GenericFunctions';
-import { n8nWorkflowDescription } from './N8nWorkflowDescription';
+import { n8nWorkflowDescription, n8nWorkflowFields } from './N8nWorkflowDescription';
 
 export class N8nApi implements INodeType {
 	description: INodeTypeDescription = {
@@ -19,7 +19,7 @@ export class N8nApi implements INodeType {
 		outputs: ['main'],
 		credentials: [
 			{
-				name: 'N8nApi',
+				name: 'n8nApi',
 				required: true,
 			},
 		],
@@ -39,6 +39,7 @@ export class N8nApi implements INodeType {
 			},
 			// Operations will go here
 			...n8nWorkflowDescription,
+			...n8nWorkflowFields,
 		],
 	};
 

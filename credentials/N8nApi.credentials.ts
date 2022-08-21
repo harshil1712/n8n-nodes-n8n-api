@@ -1,12 +1,9 @@
 import { IAuthenticateGeneric, ICredentialType, INodeProperties } from 'n8n-workflow';
 
-export class N8nApi implements ICredentialType {
-	name = 'N8nApi';
-	displayName = 'n8n node';
-	// Uses the link to this tutorial as an example
-	// Replace with your own docs links when building your own nodes
-	documentationUrl =
-		'https://docs.n8n.io/integrations/creating-nodes/build/declarative-style-node/';
+export class n8nApi implements ICredentialType {
+	name = 'n8nApi';
+	displayName = 'n8n node API';
+	documentationUrl = 'https://github.com/harshil1712/n8n-nodes-n8n-api#readme';
 	properties: INodeProperties[] = [
 		{
 			displayName: 'Base URL',
