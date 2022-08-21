@@ -41,3 +41,31 @@ export async function apiRequest(
 		throw new NodeApiError(this.getNode(), error);
 	}
 }
+
+export async function apiRequestAllItems(
+	this: IExecuteFunctions | ILoadOptionsFunctions,
+	method: string,
+	endpoint: string,
+	propertyName: string,
+	// tslint:disable-next-line:no-any
+	body: any = {},
+	query: IDataObject = {},
+	// tslint:disable-next-line:no-any
+): Promise<any> {
+	const returnData: IDataObject[] = [];
+
+	let responseData;
+
+	console.log(query);
+
+	do {
+		responseData = await apiRequest.call(this, method, endpoint, body, query);
+		query.cursor = responseData.nextCursor;
+		returnData.push.apply(returnData, responseData[propertyName]);
+		if (query.limit && returnData.length >= query.limit) {
+			return returnData;
+		}
+	} while (responseData.nextCursor !== null);
+
+	return returnData;
+}
