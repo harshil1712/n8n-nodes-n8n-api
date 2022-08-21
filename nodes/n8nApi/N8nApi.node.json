@@ -1,0 +1,20 @@
+{
+	"node": "n8n-nodes-base.n8nApi",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": [
+		"Miscellaneous"
+	],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://github.com/harshil1712/n8n-nodes-n8n-api#readme"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/harshil1712/n8n-nodes-n8n-api#readme"
+			}
+		]
+	}
+}
