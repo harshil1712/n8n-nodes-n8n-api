@@ -1,6 +1,6 @@
 import { IExecuteFunctions } from 'n8n-core';
 import { IDataObject, INodeExecutionData, INodeType, INodeTypeDescription } from 'n8n-workflow';
-import { apiRequest } from './GenericFunctions';
+import { apiRequest, apiRequestAllItems } from './GenericFunctions';
 import { n8nWorkflowDescription, n8nWorkflowFields } from './N8nWorkflowDescription';
 import { n8nExecutionDescription, n8nExecutionFields } from './n8nExecutionDescription';
 
@@ -53,6 +53,7 @@ export class N8nApi implements INodeType {
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
+		const length = items.length;
 		const returnData: IDataObject[] = [];
 		let responseData;
 
@@ -70,9 +71,34 @@ export class N8nApi implements INodeType {
 			endpoint = '/workflows';
 
 			if (operation === 'getAll') {
-				requestMethod = 'GET';
-				responseData = await apiRequest.call(this, requestMethod, endpoint, body, qs);
-				returnData.push(...responseData.data);
+				for (let i = 0; i < length; i++) {
+					try {
+						requestMethod = 'GET';
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
+						if (additionalFields.tags) {
+							qs.tags = additionalFields.tags as string;
+						}
+						if (additionalFields.activeWorkflows && additionalFields.activeWorkflows === true) {
+							qs.active = true;
+						}
+						console.log(qs);
+						responseData = await apiRequestAllItems.call(this, 'GET', endpoint, 'data', {}, qs);
+
+						if (returnAll === false) {
+							const limit = this.getNodeParameter('limit', i) as number;
+							responseData = responseData.splice(0, limit);
+						}
+
+						returnData.push.apply(returnData, responseData);
+					} catch (error) {
+						if (this.continueOnFail()) {
+							returnData.push({ error: error.message });
+							continue;
+						}
+						throw error;
+					}
+				}
 			}
 		}
 		return [this.helpers.returnJsonArray(returnData)];
