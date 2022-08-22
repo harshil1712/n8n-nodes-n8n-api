@@ -2,6 +2,7 @@ import { IAuthenticateGeneric, ICredentialType, INodeProperties } from 'n8n-work
 
 export class n8nApi implements ICredentialType {
 	name = 'n8nApi';
+	// eslint-disable-next-line n8n-nodes-base/cred-class-field-display-name-miscased
 	displayName = 'n8n node API';
 	documentationUrl = 'https://github.com/harshil1712/n8n-nodes-n8n-api#readme';
 	properties: INodeProperties[] = [
