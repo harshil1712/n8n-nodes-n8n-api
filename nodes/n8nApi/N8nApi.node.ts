@@ -104,6 +104,28 @@ export class N8nApi implements INodeType {
 		const body: IDataObject = {};
 		const qs: IDataObject = {};
 
+		// add other parameters (add value of parameter as array element)
+		try {
+			['includeData', 'workflowId'].forEach(prop => {
+				qs[prop] = this.getNodeParameter(prop, 0) as string;
+			})
+
+			if (!this.getNodeParameter('returnAll', 0)){
+				qs.limit = this.getNodeParameter('limit', 0) as number;
+			}
+		} catch (error) {
+			// nothing bad happens, just for this this prop not happen.
+		}
+
+		// add additional fields to body
+		const props =  this.getNodeParameter('additionalFields', 0) as object;
+		for(const prop in props){
+			if(props.hasOwnProperty(prop)){
+				qs[prop] = props[prop as keyof typeof props] as string[];
+				qs[prop] = qs[prop]?.toString();
+			}
+		}
+
 		if (resource === 'workflow') {
 			endpoint = '/workflows';
 
