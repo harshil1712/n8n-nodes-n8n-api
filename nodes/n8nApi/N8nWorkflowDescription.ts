@@ -59,8 +59,8 @@ const getAllOperation: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: {
 			show: {
-				resource: ['workflow'],
-				operation: ['getAll'],
+				resource: ['workflow', 'execution'],
+				operation: ['getAll', 'getExecutions'],
 			},
 		},
 		default: false,
@@ -72,8 +72,8 @@ const getAllOperation: INodeProperties[] = [
 		type: 'number',
 		displayOptions: {
 			show: {
-				resource: ['workflow'],
-				operation: ['getAll'],
+				resource: ['workflow', 'execution'],
+				operation: ['getAll', 'getExecutions'],
 				returnAll: [false],
 			},
 		},

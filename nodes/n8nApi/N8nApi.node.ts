@@ -9,6 +9,7 @@ import {
 } from 'n8n-workflow';
 import { apiRequest, apiRequestAllItems } from './GenericFunctions';
 import { n8nWorkflowDescription, n8nWorkflowFields } from './N8nWorkflowDescription';
+import { n8nExecutionDescription, n8nExecutionFields } from './n8nExecutionDescription';
 
 export class N8nApi implements INodeType {
 	description: INodeTypeDescription = {
@@ -41,12 +42,19 @@ export class N8nApi implements INodeType {
 						name: 'Workflow',
 						value: 'workflow',
 					},
+					{
+						name: "Execution",
+						value: "execution",
+					},
 				],
 				default: 'workflow',
 			},
 			// Operations will go here
 			...n8nWorkflowDescription,
 			...n8nWorkflowFields,
+
+			...n8nExecutionDescription,
+			...n8nExecutionFields,
 		],
 	};
 
