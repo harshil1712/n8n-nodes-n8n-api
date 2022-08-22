@@ -11,12 +11,14 @@ export class N8nApi implements ICredentialType {
 			name: 'baseUrl',
 			type: 'string',
 			default: '',
+			required: true,
 		},
 		{
 			displayName: 'API Key',
 			name: 'apiKey',
 			type: 'string',
 			default: '',
+			required: true,
 		},
 	];
 	authenticate = {
