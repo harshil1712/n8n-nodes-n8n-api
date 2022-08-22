@@ -21,13 +21,13 @@ export class N8nApi implements ICredentialType {
 			required: true,
 		},
 	];
+
 	authenticate = {
 		type: 'generic',
 		properties: {
-			// TO DO: Add your own authentication properties here
-			// header: {
-			// 	'X-N8N-API-KEY': '={{$credentials.apiKey}}'
-			// }
+			headers: {
+				'X-N8N-API-KEY': '={{$credentials.apiKey}}',
+			},
 		},
 	} as IAuthenticateGeneric;
 }
