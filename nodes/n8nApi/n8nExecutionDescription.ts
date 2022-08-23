@@ -99,20 +99,6 @@ const getAllOperation: INodeProperties[] = [
 				},
 			},
 			{
-				displayName: 'Workflow ID',
-				name: 'workflowId',
-				type: 'number',
-				default: 1000,
-				description: 'Workflow to filter the executions by',
-				displayOptions: {
-					show: {
-						'/operation': [
-							'getExecutions',
-						],
-					},
-				},
-			},
-			{
 				displayName: 'Cursor',
 				name: 'cursor',
 				type: 'string',
