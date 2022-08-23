@@ -1,5 +1,5 @@
 import { IExecuteFunctions } from 'n8n-core';
-import { IDataObject, INodeExecutionData, INodeType, INodeTypeDescription } from 'n8n-workflow';
+import { GenericValue, IDataObject, INodeExecutionData, INodeType, INodeTypeDescription } from 'n8n-workflow';
 import { apiRequest, apiRequestAllItems } from './GenericFunctions';
 import { n8nWorkflowDescription, n8nWorkflowFields } from './N8nWorkflowDescription';
 import { n8nExecutionDescription, n8nExecutionFields } from './n8nExecutionDescription';
@@ -59,6 +59,7 @@ export class N8nApi implements INodeType {
 
 		const resource = this.getNodeParameter('resource', 0) as string;
 		const operation = this.getNodeParameter('operation', 0) as string;
+		const credentials = await this.getCredentials('n8nApi') as IDataObject;
 
 		let returnAll = false;
 		let endpoint = '';
@@ -102,17 +103,47 @@ export class N8nApi implements INodeType {
 			}
 		}
 		else{
-			endpoint = operation === 'execution' ? '/executions' : '/credentials';
+			// add other parameters (add value of parameter as array element)
+			try {
+				['includeData', 'workflowId'].forEach(prop => {
+					qs[prop] = this.getNodeParameter(prop, 0) as string;
+				})
 
-			// check if workflowId is set
+				if (!this.getNodeParameter('returnAll', 0)){
+					qs.limit = this.getNodeParameter('limit', 0) as number;
+				}
+			} catch (error) {
+				// nothing bad happens, just for this this prop not happen.
+			}
+
+			// add additional fields to body
+			const props =  this.getNodeParameter('additionalFields', 0) as object;
+			for(const prop in props){
+				if(props.hasOwnProperty(prop)){
+					qs[prop] = props[prop as keyof typeof props] as string[];
+					qs[prop] = qs[prop]?.toString();
+				}
+			}
+
+			// prepaire endpoint
+			endpoint = credentials.baseUrl as string;
+			endpoint += operation === 'execution' ? '/executions' : '/credentials';
+			endpoint = endpoint.replace(/\/\//g, '\/');
+
 			if(qs.workflowId){
 				endpoint += `/${qs.workflowId}`;
 				delete qs.workflowId;
 			}
 
-			responseData = await apiRequestAllItems.call(this, 'GET', endpoint, 'data', {}, qs);
-
-			returnData.push.apply(returnData, responseData);
+			const reqInfo = {
+				method: 'GET', //TODO
+				qs,
+				uri: endpoint,
+				json: true,
+				headers: {
+					'X-N8N-API-KEY': credentials.apiKey,
+				},
+			}
 
 		}
 		return [this.helpers.returnJsonArray(returnData)];
