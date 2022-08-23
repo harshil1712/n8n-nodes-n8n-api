@@ -51,9 +51,9 @@ export class N8nApi implements INodeType {
 			},
 			// Operations will go here
 			...n8nWorkflowDescription,
-			...n8nWorkflowFields,
-
 			...n8nExecutionDescription,
+
+			...n8nWorkflowFields,
 			...n8nExecutionFields,
 		],
 	};
@@ -286,6 +286,20 @@ export class N8nApi implements INodeType {
 					}
 				}
 			}
+		}
+		else{
+			endpoint = operation === 'execution' ? '/executions' : '/credentials';
+
+			// check if workflowId is set
+			if(qs.workflowId){
+				endpoint += `/${qs.workflowId}`;
+				delete qs.workflowId;
+			}
+
+			responseData = await apiRequestAllItems.call(this, 'GET', endpoint, 'data', {}, qs);
+
+			returnData.push.apply(returnData, responseData);
+
 		}
 		return [this.helpers.returnJsonArray(returnData)];
 	}
