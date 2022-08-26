@@ -74,8 +74,14 @@ export class N8nApi implements INodeType {
 						if (additionalFields.activeWorkflows && additionalFields.activeWorkflows === true) {
 							qs.active = true;
 						}
-						console.log(qs);
-						responseData = await apiRequestAllItems.call(this, 'GET', endpoint, 'data', {}, qs);
+						responseData = await apiRequestAllItems.call(
+							this,
+							requestMethod,
+							endpoint,
+							'data',
+							{},
+							qs,
+						);
 
 						if (returnAll === false) {
 							const limit = this.getNodeParameter('limit', i) as number;
@@ -83,6 +89,23 @@ export class N8nApi implements INodeType {
 						}
 
 						returnData.push.apply(returnData, responseData);
+					} catch (error) {
+						if (this.continueOnFail()) {
+							returnData.push({ error: error.message });
+							continue;
+						}
+						throw error;
+					}
+				}
+			}
+			if (operation === 'get') {
+				for (let i = 0; i < length; i++) {
+					try {
+						requestMethod = 'GET';
+						const id = this.getNodeParameter('id', i) as number;
+						responseData = await apiRequest.call(this, requestMethod, `${endpoint}/${id}`, {});
+						returnData.push(responseData);
+						console.log(returnData);
 					} catch (error) {
 						if (this.continueOnFail()) {
 							returnData.push({ error: error.message });

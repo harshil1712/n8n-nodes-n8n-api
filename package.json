@@ -7,11 +7,10 @@
   ],
   "license": "MIT",
   "homepage": "",
-  "author":
-    {
-      "name": "Harshil Agrawal",
-      "email": "github@harshil.dev"
-    },
+  "author": {
+    "name": "Harshil Agrawal",
+    "email": "github@harshil.dev"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/harshil1712/n8n-nodes-n8n-api.git"

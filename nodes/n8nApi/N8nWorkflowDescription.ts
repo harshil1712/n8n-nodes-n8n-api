@@ -18,6 +18,11 @@ export const n8nWorkflowDescription: INodeProperties[] = [
 				value: 'getAll',
 				action: 'Get all n8n workflows',
 			},
+			{
+				name: 'Get',
+				value: 'get',
+				action: 'Get an n8n workflows',
+			},
 		],
 	},
 ];
@@ -82,4 +87,20 @@ const getAllOperation: INodeProperties[] = [
 	},
 ];
 
-export const n8nWorkflowFields: INodeProperties[] = [...getAllOperation];
+const getOperation: INodeProperties[] = [
+	{
+		displayName: 'ID',
+		name: 'id',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['workflow'],
+				operation: ['get'],
+			},
+		},
+		default: '',
+		description: 'ID of the workflow you want to fetch',
+	},
+];
+
+export const n8nWorkflowFields: INodeProperties[] = [...getAllOperation, ...getOperation];
