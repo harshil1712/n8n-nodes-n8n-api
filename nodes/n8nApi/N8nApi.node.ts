@@ -289,49 +289,60 @@ export class N8nApi implements INodeType {
 			}
 		}
 		else{
-			// add other parameters (add value of parameter as array element)
-			try {
-				['includeData', 'workflowId'].forEach(prop => {
-					qs[prop] = this.getNodeParameter(prop, 0) as string;
-				})
-
-				if (!this.getNodeParameter('returnAll', 0)){
-					qs.limit = this.getNodeParameter('limit', 0) as number;
-				}
-			} catch (error) {
-				// nothing bad happens, just for this this prop not happen.
-			}
-
-			// add additional fields to body
-			const props =  this.getNodeParameter('additionalFields', 0) as object;
-			for(const prop in props){
-				if(props.hasOwnProperty(prop)){
-					qs[prop] = props[prop as keyof typeof props] as string[];
-					qs[prop] = qs[prop]?.toString();
-				}
-			}
-
 			// prepaire endpoint
-			endpoint = credentials.baseUrl as string;
-			endpoint += operation === 'execution' ? '/executions' : '/credentials';
-			endpoint = endpoint.replace(/\/\//g, '\/');
+			endpoint += resource === 'execution' ? '/executions' : '/credentials';
 
-			if(qs.workflowId){
-				endpoint += `/${qs.workflowId}`;
-				delete qs.workflowId;
+			// Prepare request method
+			requestMethod = "GET";
+			if(operation === "deleteExecution")
+				requestMethod = "DELETE";
+
+			for (let i = 0; i < length; i++) {
+				// add other parameters (add value of parameter as array element)
+				try {
+					['includeData', 'workflowId'].forEach(prop => {
+						qs[prop] = this.getNodeParameter(prop, i) as string;
+					})
+
+					if (!this.getNodeParameter('returnAll', i)){
+						qs.limit = this.getNodeParameter('limit', i) as number;
+					}
+				} catch (error) {
+					// nothing bad happens, just for this this prop not happen.
+				}
+
+				// add additional fields to body
+				const props =  this.getNodeParameter('additionalFields', i) as object;
+				for(const prop in props){
+					if(props.hasOwnProperty(prop)){
+						qs[prop] = props[prop as keyof typeof props] as string[];
+						qs[prop] = qs[prop]?.toString();
+					}
+				}
+
+				// Add the resource id to the endpoint
+				console.log("🚀 ~ file: N8nApi.node.ts ~ line 140 ~ N8nApi ~ execute ~ qs", qs)
+				if(qs.workflowId){
+					endpoint += `/${qs.workflowId}`;
+					delete qs.workflowId;
+				}
+
+				try {
+					// execute request
+					responseData = await apiRequestAllItems.call(this, requestMethod, endpoint, 'data', {}, qs);
+
+					returnData.push.apply(returnData, responseData);
+
+				} catch (error) {
+					if (this.continueOnFail()) {
+						returnData.push({ error: error.message });
+						continue;
+					}
+					throw error;
+				}
 			}
+		} // end else
 
-			const reqInfo = {
-				method: 'GET', //TODO
-				qs,
-				uri: endpoint,
-				json: true,
-				headers: {
-					'X-N8N-API-KEY': credentials.apiKey,
-				},
-			}
-
-		}
 		return [this.helpers.returnJsonArray(returnData)];
 	}
 }

@@ -55,14 +55,24 @@ export async function apiRequestAllItems(
 	const returnData: IDataObject[] = [];
 
 	let responseData;
+	let previousCursor: string | undefined;
 
 	do {
 		responseData = await apiRequest.call(this, method, endpoint, body, query);
-		query.cursor = responseData.nextCursor;
+
+		if(!Array.isArray(responseData[propertyName]))
+			return [responseData[propertyName]];
+		console.log("🚀 ~ file: GenericFunctions.ts ~ line 65 ~ responseData", responseData)
+
 		returnData.push.apply(returnData, responseData[propertyName]);
 		if (query.limit && returnData.length >= query.limit) {
 			return returnData;
 		}
+		// if(previousCursor === query.cursor)
+			// break;
+		// previousCursor = responseData.cursor;
+		query.cursor = responseData.nextCursor;
+
 	} while (responseData.nextCursor !== null);
 
 	return returnData;
