@@ -14,6 +14,16 @@ export const n8nWorkflowDescription: INodeProperties[] = [
 		},
 		options: [
 			{
+				name: 'Activate',
+				value: 'activate',
+				action: 'Activate an n8n workflow',
+			},
+			{
+				name: 'Deactivate',
+				value: 'deactivate',
+				action: 'Deactivate an n8n workflow',
+			},
+			{
 				name: 'Delete',
 				value: 'delete',
 				action: 'Delete an n8n workflow',
@@ -100,7 +110,7 @@ const idField: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['workflow'],
-				operation: ['get', 'delete'],
+				operation: ['get', 'delete', 'activate', 'deactivate'],
 			},
 		},
 		default: '',

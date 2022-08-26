@@ -132,6 +132,50 @@ export class N8nApi implements INodeType {
 					}
 				}
 			}
+			if (operation === 'activate') {
+				for (let i = 0; i < length; i++) {
+					try {
+						requestMethod = 'POST';
+						const id = this.getNodeParameter('id', i) as number;
+						responseData = await apiRequest.call(
+							this,
+							requestMethod,
+							`${endpoint}/${id}/activate`,
+							{},
+						);
+						returnData.push(responseData);
+						console.log(returnData);
+					} catch (error) {
+						if (this.continueOnFail()) {
+							returnData.push({ error: error.message });
+							continue;
+						}
+						throw error;
+					}
+				}
+			}
+			if (operation === 'deactivate') {
+				for (let i = 0; i < length; i++) {
+					try {
+						requestMethod = 'POST';
+						const id = this.getNodeParameter('id', i) as number;
+						responseData = await apiRequest.call(
+							this,
+							requestMethod,
+							`${endpoint}/${id}/deactivate`,
+							{},
+						);
+						returnData.push(responseData);
+						console.log(returnData);
+					} catch (error) {
+						if (this.continueOnFail()) {
+							returnData.push({ error: error.message });
+							continue;
+						}
+						throw error;
+					}
+				}
+			}
 		}
 		return [this.helpers.returnJsonArray(returnData)];
 	}
