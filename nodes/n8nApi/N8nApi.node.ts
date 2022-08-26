@@ -115,6 +115,23 @@ export class N8nApi implements INodeType {
 					}
 				}
 			}
+			if (operation === 'delete') {
+				for (let i = 0; i < length; i++) {
+					try {
+						requestMethod = 'DELETE';
+						const id = this.getNodeParameter('id', i) as number;
+						responseData = await apiRequest.call(this, requestMethod, `${endpoint}/${id}`, {});
+						returnData.push(responseData);
+						console.log(returnData);
+					} catch (error) {
+						if (this.continueOnFail()) {
+							returnData.push({ error: error.message });
+							continue;
+						}
+						throw error;
+					}
+				}
+			}
 		}
 		return [this.helpers.returnJsonArray(returnData)];
 	}

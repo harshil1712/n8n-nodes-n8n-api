@@ -14,14 +14,19 @@ export const n8nWorkflowDescription: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Get All',
-				value: 'getAll',
-				action: 'Get all n8n workflows',
+				name: 'Delete',
+				value: 'delete',
+				action: 'Delete an n8n workflow',
 			},
 			{
 				name: 'Get',
 				value: 'get',
-				action: 'Get an n8n workflows',
+				action: 'Get an n8n workflow',
+			},
+			{
+				name: 'Get All',
+				value: 'getAll',
+				action: 'Get all n8n workflows',
 			},
 		],
 	},
@@ -87,7 +92,7 @@ const getAllOperation: INodeProperties[] = [
 	},
 ];
 
-const getOperation: INodeProperties[] = [
+const idField: INodeProperties[] = [
 	{
 		displayName: 'ID',
 		name: 'id',
@@ -95,7 +100,7 @@ const getOperation: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['workflow'],
-				operation: ['get'],
+				operation: ['get', 'delete'],
 			},
 		},
 		default: '',
@@ -103,4 +108,4 @@ const getOperation: INodeProperties[] = [
 	},
 ];
 
-export const n8nWorkflowFields: INodeProperties[] = [...getAllOperation, ...getOperation];
+export const n8nWorkflowFields: INodeProperties[] = [...getAllOperation, ...idField];
