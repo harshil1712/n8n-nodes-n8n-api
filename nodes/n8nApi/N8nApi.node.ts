@@ -1,5 +1,12 @@
 import { IExecuteFunctions } from 'n8n-core';
-import { IDataObject, INodeExecutionData, INodeType, INodeTypeDescription } from 'n8n-workflow';
+import {
+	IDataObject,
+	ILoadOptionsFunctions,
+	INodeExecutionData,
+	INodePropertyOptions,
+	INodeType,
+	INodeTypeDescription,
+} from 'n8n-workflow';
 import { apiRequest, apiRequestAllItems } from './GenericFunctions';
 import { n8nWorkflowDescription, n8nWorkflowFields } from './N8nWorkflowDescription';
 
@@ -41,6 +48,36 @@ export class N8nApi implements INodeType {
 			...n8nWorkflowDescription,
 			...n8nWorkflowFields,
 		],
+	};
+
+	methods = {
+		// loadOptions: {
+		// 	async getNodes(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+		// 		const returnData: INodePropertyOptions[] = [];
+		// 		const { baseUrl, apiKey } = await this.getCredentials('n8nApi');
+		// 		const options = {
+		// 			url: `${baseUrl}`,
+		// 			headers: {
+		// 				// Cookie: `n8n-auth=${apiKey}`,
+		// 			},
+		// 		};
+		// 		const response = await this.helpers.httpRequest(options);
+		// 		console.log(baseUrl);
+		// 		// // const { data } = await apiRequest.call(
+		// 		// 	this,
+		// 		// 	'GET',
+		// 		// 	'',
+		// 		// 	{},
+		// 		// 	{},
+		// 		// 	`${baseUrl}/rest/node-types`,
+		// 		// );
+		// 		console.log(response);
+		// 		// data.map(({ displayName, name }: { displayName: string; name: string }) => {
+		// 		// 	console.log(displayName, name);
+		// 		// });
+		// 		return returnData;
+		// 	},
+		// },
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
@@ -105,7 +142,6 @@ export class N8nApi implements INodeType {
 						const id = this.getNodeParameter('id', i) as number;
 						responseData = await apiRequest.call(this, requestMethod, `${endpoint}/${id}`, {});
 						returnData.push(responseData);
-						console.log(returnData);
 					} catch (error) {
 						if (this.continueOnFail()) {
 							returnData.push({ error: error.message });
@@ -122,7 +158,6 @@ export class N8nApi implements INodeType {
 						const id = this.getNodeParameter('id', i) as number;
 						responseData = await apiRequest.call(this, requestMethod, `${endpoint}/${id}`, {});
 						returnData.push(responseData);
-						console.log(returnData);
 					} catch (error) {
 						if (this.continueOnFail()) {
 							returnData.push({ error: error.message });
@@ -144,7 +179,6 @@ export class N8nApi implements INodeType {
 							{},
 						);
 						returnData.push(responseData);
-						console.log(returnData);
 					} catch (error) {
 						if (this.continueOnFail()) {
 							returnData.push({ error: error.message });
@@ -166,7 +200,40 @@ export class N8nApi implements INodeType {
 							{},
 						);
 						returnData.push(responseData);
-						console.log(returnData);
+					} catch (error) {
+						if (this.continueOnFail()) {
+							returnData.push({ error: error.message });
+							continue;
+						}
+						throw error;
+					}
+				}
+			}
+			if (operation === 'create') {
+				for (let i = 0; i < length; i++) {
+					try {
+						requestMethod = 'POST';
+						const name = this.getNodeParameter('name', i) as string;
+						const nodes = this.getNodeParameter('nodes', i) as IDataObject;
+						const connections = this.getNodeParameter('connections', i) as IDataObject;
+						const settingsUi = this.getNodeParameter('workflowSettingsUi', i) as IDataObject;
+						const staticData = this.getNodeParameter('staticData', i) as string;
+						staticData.length !== 0
+							? Object.assign(body, {
+									name,
+									nodes,
+									connections,
+									settings: settingsUi.settings,
+									staticData,
+							  })
+							: Object.assign(body, {
+									name,
+									nodes,
+									connections,
+									settings: settingsUi.settings,
+							  });
+						responseData = await apiRequest.call(this, requestMethod, `${endpoint}`, body);
+						returnData.push(responseData);
 					} catch (error) {
 						if (this.continueOnFail()) {
 							returnData.push({ error: error.message });

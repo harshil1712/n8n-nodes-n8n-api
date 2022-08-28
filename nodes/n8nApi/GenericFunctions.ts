@@ -56,8 +56,6 @@ export async function apiRequestAllItems(
 
 	let responseData;
 
-	console.log(query);
-
 	do {
 		responseData = await apiRequest.call(this, method, endpoint, body, query);
 		query.cursor = responseData.nextCursor;
