@@ -116,7 +116,7 @@ export class N8nApi implements INodeType {
 
 			for (let i = 0; i < length; i++) {
 				// add other parameters (add value of parameter as array element)
-				['includeData', 'workflowId'].forEach((prop) => {
+				['includeData', 'pathId'].forEach((prop) => {
 					try {
 						qs[prop] = this.getNodeParameter(prop, i) as string;
 					} catch (error) {
@@ -144,9 +144,9 @@ export class N8nApi implements INodeType {
 
 				// Add the resource id to the endpoint
 				var endpointWithId = null;
-				if (qs.workflowId) {
-					endpointWithId = `${endpoint}/${qs.workflowId}`;
-					delete qs.workflowId;
+				if (qs.pathId) {
+					endpointWithId = `${endpoint}/${qs.pathId}`;
+					delete qs.pathId;
 				}
 
 				try {

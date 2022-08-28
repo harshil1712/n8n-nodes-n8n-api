@@ -46,8 +46,8 @@ const getAllOperation: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Workflow ID',
-		name: 'workflowId',
+		displayName: 'ID',
+		name: 'pathId',
 		type: 'number',
 		required: true,
 		default: 0,
