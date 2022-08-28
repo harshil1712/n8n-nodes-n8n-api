@@ -63,6 +63,11 @@ const getAllOperation: INodeProperties[] = [
 		name: 'additionalFields',
 		type: 'collection',
 		default: {},
+		displayOptions: {
+			show: {
+				resource: ['execution'],
+			},
+		},
 		options: [
 			{
 				displayName: 'Status',
