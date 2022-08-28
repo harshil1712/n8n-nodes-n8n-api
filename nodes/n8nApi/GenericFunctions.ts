@@ -63,7 +63,6 @@ export async function apiRequestAllItems(
 
 		if(!Array.isArray(responseData[propertyName]))
 			return [responseData[propertyName]];
-		console.log("🚀 ~ file: GenericFunctions.ts ~ line 65 ~ responseData", responseData)
 
 		returnData.push.apply(returnData, responseData[propertyName]);
 		if (query.limit && returnData.length >= query.limit) {

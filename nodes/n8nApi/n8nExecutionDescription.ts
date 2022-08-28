@@ -24,10 +24,10 @@ export const n8nExecutionDescription: INodeProperties[] = [
 				action: 'Get execution',
 			},
 			{
-				name: "Delete Execution",
-				value: "deleteExecution",
-				action: "Delete execution",
-			}
+				name: 'Delete Execution',
+				value: 'deleteExecution',
+				action: 'Delete execution',
+			},
 		],
 	},
 ];
@@ -38,13 +38,10 @@ const getAllOperation: INodeProperties[] = [
 		name: 'includeData',
 		type: 'boolean',
 		default: false,
-		description: 'Whether or not to include the execution\'s detailed data',
+		description: "Whether or not to include the execution's detailed data",
 		displayOptions: {
 			show: {
-				'/operation': [
-					'getExecutions',
-					'getExecution',
-				],
+				'/operation': ['getExecutions', 'getExecution'],
 			},
 		},
 	},
@@ -57,10 +54,7 @@ const getAllOperation: INodeProperties[] = [
 		description: 'The ID of the execution',
 		displayOptions: {
 			show: {
-				'/operation': [
-					'getExecution',
-					'deleteExecution',
-				],
+				'/operation': ['getExecution', 'deleteExecution'],
 			},
 		},
 	},
@@ -92,30 +86,12 @@ const getAllOperation: INodeProperties[] = [
 				default: 'success',
 				displayOptions: {
 					show: {
-						'/operation': [
-							'getExecutions',
-						],
+						'/operation': ['getExecutions'],
 					},
 				},
 			},
-			{
-				displayName: 'Cursor',
-				name: 'cursor',
-				type: 'string',
-				description: 'Paginate through users by setting the cursor parameter to a nextCursor attribute returned by a previous request\'s response. Default value fetches the first "page" of the collection. See pagination for more detail',
-				default: '',
-				displayOptions: {
-					show: {
-						'/operation': [
-							'getExecutions',
-						],
-					},
-				},
-			}
 		],
 	},
-
-
 ];
 
 export const n8nExecutionFields: INodeProperties[] = [...getAllOperation];
