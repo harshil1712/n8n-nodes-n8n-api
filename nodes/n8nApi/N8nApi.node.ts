@@ -43,8 +43,8 @@ export class N8nApi implements INodeType {
 						value: 'workflow',
 					},
 					{
-						name: "Execution",
-						value: "execution",
+						name: 'Execution',
+						value: 'execution',
 					},
 				],
 				default: 'workflow',
@@ -96,7 +96,7 @@ export class N8nApi implements INodeType {
 
 		const resource = this.getNodeParameter('resource', 0) as string;
 		const operation = this.getNodeParameter('operation', 0) as string;
-		const credentials = await this.getCredentials('n8nApi') as IDataObject;
+		const credentials = (await this.getCredentials('n8nApi')) as IDataObject;
 
 		let returnAll = false;
 		let endpoint = '';
@@ -293,18 +293,22 @@ export class N8nApi implements INodeType {
 			endpoint += resource === 'execution' ? '/executions' : '/credentials';
 
 			// Prepare request method
-			requestMethod = "GET";
-			if(operation === "deleteExecution")
-				requestMethod = "DELETE";
+			requestMethod = 'GET';
+			if (operation === 'deleteExecution') requestMethod = 'DELETE';
 
 			for (let i = 0; i < length; i++) {
 				// add other parameters (add value of parameter as array element)
-				try {
-					['includeData', 'workflowId'].forEach(prop => {
+				['includeData', 'workflowId'].forEach((prop) => {
+					try {
 						qs[prop] = this.getNodeParameter(prop, i) as string;
-					})
+					} catch (error) {
+						// nothing bad happens, just for this this prop not happen.
+					}
+				});
 
-					if (!this.getNodeParameter('returnAll', i)){
+				// set limit
+				try {
+					if (!this.getNodeParameter('returnAll', i)) {
 						qs.limit = this.getNodeParameter('limit', i) as number;
 					}
 				} catch (error) {
@@ -312,27 +316,45 @@ export class N8nApi implements INodeType {
 				}
 
 				// add additional fields to body
-				const props =  this.getNodeParameter('additionalFields', i) as object;
-				for(const prop in props){
-					if(props.hasOwnProperty(prop)){
+				const props = this.getNodeParameter('additionalFields', i) as object;
+				for (const prop in props) {
+					if (props.hasOwnProperty(prop)) {
 						qs[prop] = props[prop as keyof typeof props] as string[];
 						qs[prop] = qs[prop]?.toString();
 					}
 				}
 
 				// Add the resource id to the endpoint
-				console.log("🚀 ~ file: N8nApi.node.ts ~ line 140 ~ N8nApi ~ execute ~ qs", qs)
-				if(qs.workflowId){
-					endpoint += `/${qs.workflowId}`;
+				var endpointWithId = null;
+				if (qs.workflowId) {
+					endpointWithId = `${endpoint}/${qs.workflowId}`;
 					delete qs.workflowId;
 				}
 
 				try {
 					// execute request
-					responseData = await apiRequestAllItems.call(this, requestMethod, endpoint, 'data', {}, qs);
-
-					returnData.push.apply(returnData, responseData);
-
+					if (endpointWithId) {
+						// return object, not a list
+						const responseData = await apiRequest.call(
+							this,
+							requestMethod,
+							`${endpointWithId}`,
+							{},
+							qs,
+						);
+						returnData.push(responseData);
+					} else {
+						// return list
+						responseData = await apiRequestAllItems.call(
+							this,
+							requestMethod,
+							endpointWithId || endpoint,
+							'data',
+							{},
+							qs,
+						);
+						returnData.push.apply(returnData, responseData);
+					}
 				} catch (error) {
 					if (this.continueOnFail()) {
 						returnData.push({ error: error.message });
