@@ -9,6 +9,7 @@ import {
 } from 'n8n-workflow';
 import { apiRequest, apiRequestAllItems } from './GenericFunctions';
 import { n8nWorkflowDescription, n8nWorkflowFields } from './N8nWorkflowDescription';
+import { n8nExecutionDescription, n8nExecutionFields } from './n8nExecutionDescription';
 
 export class N8nApi implements INodeType {
 	description: INodeTypeDescription = {
@@ -41,12 +42,19 @@ export class N8nApi implements INodeType {
 						name: 'Workflow',
 						value: 'workflow',
 					},
+					{
+						name: 'Execution',
+						value: 'execution',
+					},
 				],
 				default: 'workflow',
 			},
 			// Operations will go here
 			...n8nWorkflowDescription,
+			...n8nExecutionDescription,
+
 			...n8nWorkflowFields,
+			...n8nExecutionFields,
 		],
 	};
 
@@ -88,6 +96,7 @@ export class N8nApi implements INodeType {
 
 		const resource = this.getNodeParameter('resource', 0) as string;
 		const operation = this.getNodeParameter('operation', 0) as string;
+		const credentials = (await this.getCredentials('n8nApi')) as IDataObject;
 
 		let returnAll = false;
 		let endpoint = '';
@@ -279,6 +288,83 @@ export class N8nApi implements INodeType {
 				}
 			}
 		}
+		else{
+			// prepaire endpoint
+			endpoint += resource === 'execution' ? '/executions' : '/credentials';
+
+			// Prepare request method
+			requestMethod = 'GET';
+			if (operation === 'deleteExecution') requestMethod = 'DELETE';
+
+			for (let i = 0; i < length; i++) {
+				// add other parameters (add value of parameter as array element)
+				['includeData', 'pathId'].forEach((prop) => {
+					try {
+						qs[prop] = this.getNodeParameter(prop, i) as string;
+					} catch (error) {
+						// nothing bad happens, just for this this prop not happen.
+					}
+				});
+
+				// set limit
+				try {
+					if (!this.getNodeParameter('returnAll', i)) {
+						qs.limit = this.getNodeParameter('limit', i) as number;
+					}
+				} catch (error) {
+					// nothing bad happens, just for this this prop not happen.
+				}
+
+				// add additional fields to body
+				const props = this.getNodeParameter('additionalFields', i) as object;
+				for (const prop in props) {
+					if (props.hasOwnProperty(prop)) {
+						qs[prop] = props[prop as keyof typeof props] as string[];
+						qs[prop] = qs[prop]?.toString();
+					}
+				}
+
+				// Add the resource id to the endpoint
+				var endpointWithId = null;
+				if (qs.pathId) {
+					endpointWithId = `${endpoint}/${qs.pathId}`;
+					delete qs.pathId;
+				}
+
+				try {
+					// execute request
+					if (endpointWithId) {
+						// return object, not a list
+						const responseData = await apiRequest.call(
+							this,
+							requestMethod,
+							`${endpointWithId}`,
+							{},
+							qs,
+						);
+						returnData.push(responseData);
+					} else {
+						// return list
+						responseData = await apiRequestAllItems.call(
+							this,
+							requestMethod,
+							endpointWithId || endpoint,
+							'data',
+							{},
+							qs,
+						);
+						returnData.push.apply(returnData, responseData);
+					}
+				} catch (error) {
+					if (this.continueOnFail()) {
+						returnData.push({ error: error.message });
+						continue;
+					}
+					throw error;
+				}
+			}
+		} // end else
+
 		return [this.helpers.returnJsonArray(returnData)];
 	}
 }
