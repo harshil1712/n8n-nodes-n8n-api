@@ -43,6 +43,11 @@ export const n8nWorkflowDescription: INodeProperties[] = [
 				value: 'getAll',
 				action: 'Get all n8n workflows',
 			},
+			{
+				name: 'Update',
+				value: 'update',
+				action: 'Update a workflow',
+			},
 		],
 	},
 ];
@@ -115,7 +120,7 @@ const idField: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['workflow'],
-				operation: ['get', 'delete', 'activate', 'deactivate'],
+				operation: ['get', 'delete', 'activate', 'deactivate', 'update'],
 			},
 		},
 		default: '',
@@ -132,7 +137,7 @@ const createOperation: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['workflow'],
-				operation: ['create'],
+				operation: ['create', 'update'],
 			},
 		},
 		description: 'Enter the name of the new workflow',
@@ -276,7 +281,7 @@ const createOperation: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['workflow'],
-				operation: ['create'],
+				operation: ['create', 'update'],
 			},
 		},
 	},
@@ -289,7 +294,7 @@ const createOperation: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['workflow'],
-				operation: ['create'],
+				operation: ['create', 'update'],
 			},
 		},
 	},
@@ -302,7 +307,7 @@ const createOperation: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['workflow'],
-				operation: ['create'],
+				operation: ['create', 'update'],
 			},
 		},
 		required: true,
@@ -389,7 +394,7 @@ const createOperation: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['workflow'],
-				operation: ['create'],
+				operation: ['create', 'update'],
 			},
 		},
 	},
