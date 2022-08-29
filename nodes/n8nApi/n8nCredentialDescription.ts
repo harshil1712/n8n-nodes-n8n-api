@@ -61,7 +61,7 @@ const getAllOperation: INodeProperties[] = [
 				'/operation': ['getCredentialSchema'],
 			},
 		},
-	}
+	},
 ];
 
 export const n8nCredentialFields: INodeProperties[] = [...getAllOperation];
