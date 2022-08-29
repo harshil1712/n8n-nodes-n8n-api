@@ -12,6 +12,7 @@ export async function apiRequest(
 	query?: IDataObject,
 	uri?: string,
 	option: IDataObject = {},
+	// tslint:disable-next-line: no-any
 ): Promise<any> {
 	const credentials = await this.getCredentials('n8nApi');
 	query = query || {};
