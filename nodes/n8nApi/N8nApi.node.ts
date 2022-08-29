@@ -10,6 +10,8 @@ import {
 import { apiRequest, apiRequestAllItems } from './GenericFunctions';
 import { n8nWorkflowDescription, n8nWorkflowFields } from './N8nWorkflowDescription';
 import { n8nExecutionDescription, n8nExecutionFields } from './n8nExecutionDescription';
+import { n8nCredentialDescription, n8nCredentialFields } from './n8nCredentialDescription';
+import { json } from 'express';
 
 export class N8nApi implements INodeType {
 	description: INodeTypeDescription = {
@@ -46,15 +48,21 @@ export class N8nApi implements INodeType {
 						name: 'Execution',
 						value: 'execution',
 					},
+					{
+						name: 'Credential',
+						value: 'credential',
+					},
 				],
 				default: 'workflow',
 			},
 			// Operations will go here
 			...n8nWorkflowDescription,
 			...n8nExecutionDescription,
+			...n8nCredentialDescription,
 
 			...n8nWorkflowFields,
 			...n8nExecutionFields,
+			...n8nCredentialFields,
 		],
 	};
 
@@ -291,14 +299,21 @@ export class N8nApi implements INodeType {
 		else{
 			// prepaire endpoint
 			endpoint += resource === 'execution' ? '/executions' : '/credentials';
+			if (operation === 'getCredentialSchema') endpoint += '/schema';
 
 			// Prepare request method
 			requestMethod = 'GET';
-			if (operation === 'deleteExecution') requestMethod = 'DELETE';
+			if (operation === 'deleteExecution' || operation === 'deleteCredential')
+				requestMethod = 'DELETE';
+			else if (operation === 'createCredential') requestMethod = 'POST';
 
 			for (let i = 0; i < length; i++) {
+				if (operation === 'createCredential') {
+					body.data = JSON.parse(this.getNodeParameter('object', i) as string);
+				}
+
 				// add other parameters (add value of parameter as array element)
-				['includeData', 'pathId'].forEach((prop) => {
+				['includeData', 'pathId', 'schemaName'].forEach((prop) => {
 					try {
 						qs[prop] = this.getNodeParameter(prop, i) as string;
 					} catch (error) {
@@ -315,21 +330,26 @@ export class N8nApi implements INodeType {
 					// nothing bad happens, just for this this prop not happen.
 				}
 
-				// add additional fields to body
-				const props = this.getNodeParameter('additionalFields', i) as object;
-				for (const prop in props) {
-					if (props.hasOwnProperty(prop)) {
-						qs[prop] = props[prop as keyof typeof props] as string[];
-						qs[prop] = qs[prop]?.toString();
+				// credentials has no additional fields
+				if (resource !== 'credential') {
+					// add additional fields to body
+					const props = this.getNodeParameter('additionalFields', i) as object;
+					for (const prop in props) {
+						if (props.hasOwnProperty(prop)) {
+							qs[prop] = props[prop as keyof typeof props] as string[];
+							qs[prop] = qs[prop]?.toString();
+						}
 					}
 				}
 
 				// Add the resource id to the endpoint
 				var endpointWithId = null;
-				if (qs.pathId) {
-					endpointWithId = `${endpoint}/${qs.pathId}`;
+				if (qs.pathId || qs.schemaName) {
+					endpointWithId = `${endpoint}/${qs.pathId || qs.schemaName}`;
 					delete qs.pathId;
+					delete qs.schemaName;
 				}
+				console.log('🚀 ~ file: N8nApi.node.ts ~ line 194 ~ N8nApi ~ execute ~ body', body);
 
 				try {
 					// execute request
@@ -339,7 +359,7 @@ export class N8nApi implements INodeType {
 							this,
 							requestMethod,
 							`${endpointWithId}`,
-							{},
+							body.data || JSON.parse('{}'),
 							qs,
 						);
 						returnData.push(responseData);
@@ -350,7 +370,7 @@ export class N8nApi implements INodeType {
 							requestMethod,
 							endpointWithId || endpoint,
 							'data',
-							{},
+							body.data,
 							qs,
 						);
 						returnData.push.apply(returnData, responseData);
