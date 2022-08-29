@@ -8,11 +8,11 @@
 	],
 	"license": "MIT",
 	"homepage": "",
+	"author": {
+		"name": "Harshil Agrawal",
+		"email": "github@harshil.dev"
+	},
 	"contributors": [
-		{
-			"name": "Harshil Agrawal",
-			"email": "github@harshil.dev"
-		},
 		{
 			"name": "Simon hryszko",
 			"email": "simon@hryszko.dev"
