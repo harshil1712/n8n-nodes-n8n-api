@@ -57,6 +57,7 @@ export async function apiRequestAllItems(
 	let responseData;
 	let previousCursor: string | undefined;
 
+
 	do {
 		responseData = await apiRequest.call(this, method, endpoint, body, query);
 
