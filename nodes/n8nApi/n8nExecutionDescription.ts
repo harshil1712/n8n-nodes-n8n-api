@@ -51,10 +51,10 @@ const getAllOperation: INodeProperties[] = [
 		type: 'number',
 		required: true,
 		default: 0,
-		description: 'The ID of the execution',
+		description: 'The ID of the execution or credential',
 		displayOptions: {
 			show: {
-				'/operation': ['getExecution', 'deleteExecution'],
+				'/operation': ['getExecution', 'deleteExecution', 'deleteCredential'],
 			},
 		},
 	},
