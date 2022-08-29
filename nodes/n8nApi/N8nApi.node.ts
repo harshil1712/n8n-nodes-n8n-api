@@ -242,13 +242,13 @@ export class N8nApi implements INodeType {
 									connections,
 									settings: settingsUi.settings,
 									staticData,
-							  })
+								})
 							: Object.assign(body, {
 									name,
 									nodes,
 									connections,
 									settings: settingsUi.settings,
-							  });
+								});
 						responseData = await apiRequest.call(this, requestMethod, `${endpoint}`, body);
 						returnData.push(responseData);
 					} catch (error) {
@@ -277,13 +277,13 @@ export class N8nApi implements INodeType {
 									connections,
 									settings: settingsUi.settings,
 									staticData,
-							  })
+								})
 							: Object.assign(body, {
 									name,
 									nodes,
 									connections,
 									settings: settingsUi.settings,
-							  });
+								});
 						responseData = await apiRequest.call(this, requestMethod, `${endpoint}/${id}`, body);
 						returnData.push(responseData);
 					} catch (error) {
