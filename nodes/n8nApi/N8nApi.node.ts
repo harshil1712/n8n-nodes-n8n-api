@@ -242,13 +242,13 @@ export class N8nApi implements INodeType {
 									connections,
 									settings: settingsUi.settings,
 									staticData,
-								})
+							  })
 							: Object.assign(body, {
 									name,
 									nodes,
 									connections,
 									settings: settingsUi.settings,
-								});
+							  });
 						responseData = await apiRequest.call(this, requestMethod, `${endpoint}`, body);
 						returnData.push(responseData);
 					} catch (error) {
@@ -277,13 +277,13 @@ export class N8nApi implements INodeType {
 									connections,
 									settings: settingsUi.settings,
 									staticData,
-								})
+							  })
 							: Object.assign(body, {
 									name,
 									nodes,
 									connections,
 									settings: settingsUi.settings,
-								});
+							  });
 						responseData = await apiRequest.call(this, requestMethod, `${endpoint}/${id}`, body);
 						returnData.push(responseData);
 					} catch (error) {
@@ -295,17 +295,18 @@ export class N8nApi implements INodeType {
 					}
 				}
 			}
-		}
-		else{
+		} else {
 			// prepaire endpoint
 			endpoint += resource === 'execution' ? '/executions' : '/credentials';
 			if (operation === 'getCredentialSchema') endpoint += '/schema';
 
 			// Prepare request method
 			requestMethod = 'GET';
-			if (operation === 'deleteExecution' || operation === 'deleteCredential')
+			if (operation === 'deleteExecution' || operation === 'deleteCredential') {
 				requestMethod = 'DELETE';
-			else if (operation === 'createCredential') requestMethod = 'POST';
+			} else if (operation === 'createCredential') {
+				requestMethod = 'POST';
+			}
 
 			for (let i = 0; i < length; i++) {
 				if (operation === 'createCredential') {
