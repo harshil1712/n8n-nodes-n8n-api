@@ -344,7 +344,7 @@ export class N8nApi implements INodeType {
 				}
 
 				// Add the resource id to the endpoint
-				var endpointWithId = null;
+				let endpointWithId = null;
 				if (qs.pathId || qs.schemaName) {
 					endpointWithId = `${endpoint}/${qs.pathId || qs.schemaName}`;
 					delete qs.pathId;
