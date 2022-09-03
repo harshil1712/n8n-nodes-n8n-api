@@ -37,6 +37,7 @@ const idField: INodeProperties[] = [
 		displayName: 'ID',
 		name: 'id',
 		type: 'number',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['execution'],

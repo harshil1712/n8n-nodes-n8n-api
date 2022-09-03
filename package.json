@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-n8n-api",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"description": "n8n node to call the n8n API",
 	"keywords": [
 		"n8n-community-node-package",
@@ -37,7 +37,7 @@
 	"n8n": {
 		"n8nNodesApiVersion": 1,
 		"credentials": [
-			"dist/credentials/n8nApi.credentials.js"
+			"dist/credentials/N8nApi.credentials.js"
 		],
 		"nodes": [
 			"dist/nodes/n8nApi/N8nApi.node.js"

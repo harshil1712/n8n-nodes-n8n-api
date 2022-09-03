@@ -117,6 +117,7 @@ const idField: INodeProperties[] = [
 		displayName: 'ID',
 		name: 'id',
 		type: 'number',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['workflow'],
@@ -134,6 +135,7 @@ const createOperation: INodeProperties[] = [
 		name: 'name',
 		type: 'string',
 		default: '',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['workflow'],

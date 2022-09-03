@@ -232,13 +232,13 @@ export class N8nApi implements INodeType {
 									connections,
 									settings: settingsUi.settings,
 									staticData,
-							  })
+							  }) // tslint:disable-line
 							: Object.assign(body, {
 									name,
 									nodes,
 									connections,
 									settings: settingsUi.settings,
-							  });
+							  }); // tslint:disable-line
 						responseData = await apiRequest.call(this, requestMethod, `${endpoint}`, body);
 						returnData.push(responseData);
 					} catch (error) {
@@ -267,13 +267,13 @@ export class N8nApi implements INodeType {
 									connections,
 									settings: settingsUi.settings,
 									staticData,
-							  })
+							  }) // tslint:disable-line
 							: Object.assign(body, {
 									name,
 									nodes,
 									connections,
 									settings: settingsUi.settings,
-							  });
+							  }); // tslint:disable-line
 						responseData = await apiRequest.call(this, requestMethod, `${endpoint}/${id}`, body);
 						returnData.push(responseData);
 					} catch (error) {
@@ -336,7 +336,9 @@ export class N8nApi implements INodeType {
 						requestMethod = 'GET';
 						const id = this.getNodeParameter('id', i) as number;
 						const includeData = this.getNodeParameter('includeData', i) as boolean;
-						includeData ? (qs.includeData = includeData) : {};
+						if (includeData) {
+							qs.includeData = includeData;
+						}
 						responseData = await apiRequest.call(this, requestMethod, `${endpoint}/${id}`, {}, qs);
 						returnData.push(responseData);
 					} catch (error) {
@@ -370,7 +372,7 @@ export class N8nApi implements INodeType {
 
 			if (operation === 'get') {
 				requestMethod = 'GET';
-				for (var i = 0; i < length; i++) {
+				for (let i = 0; i < length; i++) {
 					try {
 						const credentialTypeName = this.getNodeParameter('credentialTypeName', i);
 						responseData = await apiRequest.call(
