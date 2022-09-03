@@ -14,9 +14,39 @@ export const n8nWorkflowDescription: INodeProperties[] = [
 		},
 		options: [
 			{
+				name: 'Activate',
+				value: 'activate',
+				action: 'Activate an n8n workflow',
+			},
+			{
+				name: 'Create',
+				value: 'create',
+				action: 'Create an n8n workflow',
+			},
+			{
+				name: 'Deactivate',
+				value: 'deactivate',
+				action: 'Deactivate an n8n workflow',
+			},
+			{
+				name: 'Delete',
+				value: 'delete',
+				action: 'Delete an n8n workflow',
+			},
+			{
+				name: 'Get',
+				value: 'get',
+				action: 'Get an n8n workflow',
+			},
+			{
 				name: 'Get All',
 				value: 'getAll',
 				action: 'Get all n8n workflows',
+			},
+			{
+				name: 'Update',
+				value: 'update',
+				action: 'Update a workflow',
 			},
 		],
 	},
@@ -29,8 +59,8 @@ const getAllOperation: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: {
 			show: {
-				resource: ['workflow', 'execution'],
-				operation: ['getAll', 'getExecutions'],
+				resource: ['workflow'],
+				operation: ['getAll'],
 			},
 		},
 		default: false,
@@ -42,8 +72,8 @@ const getAllOperation: INodeProperties[] = [
 		type: 'number',
 		displayOptions: {
 			show: {
-				resource: ['workflow', 'execution'],
-				operation: ['getAll', 'getExecutions'],
+				resource: ['workflow'],
+				operation: ['getAll'],
 				returnAll: [false],
 			},
 		},
@@ -82,4 +112,296 @@ const getAllOperation: INodeProperties[] = [
 	},
 ];
 
-export const n8nWorkflowFields: INodeProperties[] = [...getAllOperation];
+const idField: INodeProperties[] = [
+	{
+		displayName: 'ID',
+		name: 'id',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['workflow'],
+				operation: ['get', 'delete', 'activate', 'deactivate', 'update'],
+			},
+		},
+		default: '',
+		description: 'ID of the workflow you want to fetch',
+	},
+];
+
+const createOperation: INodeProperties[] = [
+	{
+		displayName: 'Name',
+		name: 'name',
+		type: 'string',
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['workflow'],
+				operation: ['create', 'update'],
+			},
+		},
+		description: 'Enter the name of the new workflow',
+	},
+	// {
+	// 	displayName: 'Add Node',
+	// 	name: 'addNodeUi',
+	// 	type: 'fixedCollection',
+	// 	placeholder: 'Add Node',
+	// 	default: {},
+	// 	typeOptions: {
+	// 		multipleValues: true,
+	// 	},
+	// 	displayOptions: {
+	// 		show: {
+	// 			resource: ['workflow'],
+	// 			operation: ['create'],
+	// 		},
+	// 	},
+	// 	required: true,
+	// 	options: [
+	// 		{
+	// 			name: 'addNode',
+	// 			displayName: 'Add Node',
+	// 			values: [
+	// 				{
+	// 					displayName: 'Node Name or ID',
+	// 					name: 'name',
+	// 					type: 'options',
+	// 					description:
+	// 						'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>',
+	// 					default: '',
+	// 					required: true,
+	// 					typeOptions: {
+	// 						loadOptionsMethod: 'getNodes',
+	// 					},
+	// 				},
+	// 				{
+	// 					displayName: 'Webhook ID',
+	// 					name: 'webhookId',
+	// 					type: 'string',
+	// 					default: '',
+	// 					description: 'Webhook ID for the node',
+	// 				},
+	// 				{
+	// 					displayName: 'Disabled',
+	// 					name: 'disabled',
+	// 					type: 'boolean',
+	// 					default: false,
+	// 					description: 'Whether to disable the node',
+	// 				},
+	// 				{
+	// 					displayName: 'Notes in Flow',
+	// 					name: 'notesInFlow',
+	// 					type: 'boolean',
+	// 					default: false,
+	// 					description: 'Whether to add notes in the flow',
+	// 				},
+	// 				{
+	// 					displayName: 'Notes',
+	// 					name: 'notes',
+	// 					type: 'string',
+	// 					default: '',
+	// 					description: 'Notes for the node',
+	// 					typeOptions: {
+	// 						rows: 4,
+	// 					},
+	// 					// displayOptions: {
+	// 					// 	show: {
+	// 					// 		notesInFlow: [false],
+	// 					// 		operation: ['create'],
+	// 					// 	},
+	// 					// },
+	// 				},
+	// 				{
+	// 					displayName: 'Type',
+	// 					name: 'type',
+	// 					type: 'string',
+	// 					default: '',
+	// 					description: 'Node type',
+	// 				},
+	// 				{
+	// 					displayName: 'Type Version',
+	// 					name: 'typeVersion',
+	// 					type: 'number',
+	// 					default: '',
+	// 					description: 'Node Version',
+	// 				},
+	// 				{
+	// 					displayName: 'Position',
+	// 					name: 'positionUi',
+	// 					type: 'fixedCollection',
+	// 					default: {},
+	// 					options: [
+	// 						{
+	// 							name: 'position',
+	// 							displayName: 'Position',
+	// 							values: [
+	// 								{
+	// 									displayName: 'X-Axis',
+	// 									name: 'xAxis',
+	// 									type: 'number',
+	// 									description: 'X-Axis Position',
+	// 									default: '',
+	// 								},
+	// 								{
+	// 									displayName: 'Y-Axis',
+	// 									name: 'yAxis',
+	// 									type: 'number',
+	// 									default: '',
+	// 									description: 'Y-Axis Position',
+	// 								},
+	// 							],
+	// 						},
+	// 					],
+	// 				},
+	// 				{
+	// 					displayName: 'Parameters',
+	// 					name: 'parameters',
+	// 					type: 'json',
+	// 					default: '',
+	// 					description: 'Additional Parameters for the node',
+	// 				},
+	// 				{
+	// 					displayName: 'Credentials',
+	// 					name: 'credentials',
+	// 					type: 'json',
+	// 					default: '',
+	// 					description: 'Credentials for the node',
+	// 				},
+	// 			],
+	// 		},
+	// 	],
+	// },
+	{
+		displayName: 'Nodes',
+		name: 'nodes',
+		required: true,
+		type: 'json',
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['workflow'],
+				operation: ['create', 'update'],
+			},
+		},
+	},
+	{
+		displayName: 'Connections',
+		name: 'connections',
+		required: true,
+		type: 'json',
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['workflow'],
+				operation: ['create', 'update'],
+			},
+		},
+	},
+	{
+		displayName: 'Workflow Settings',
+		name: 'workflowSettingsUi',
+		type: 'fixedCollection',
+		placeholder: 'Workflow Settings',
+		default: {},
+		displayOptions: {
+			show: {
+				resource: ['workflow'],
+				operation: ['create', 'update'],
+			},
+		},
+		required: true,
+		options: [
+			{
+				name: 'settings',
+				displayName: 'Workflow Settings',
+				values: [
+					{
+						displayName: 'Save Execution Progress',
+						name: 'saveExecutionProgress',
+						type: 'boolean',
+						default: false,
+					},
+					{
+						displayName: 'Save Manual Executions',
+						name: 'saveManualExecutions',
+						type: 'boolean',
+						default: false,
+					},
+					{
+						displayName: 'Save Data Error Execution',
+						name: 'saveDataErrorExecution',
+						type: 'options',
+						options: [
+							{
+								name: 'All',
+								value: 'all',
+							},
+							{
+								name: 'None',
+								value: 'none',
+							},
+						],
+						default: 'none',
+					},
+					{
+						displayName: 'Save Data Success Execution',
+						name: 'saveDataSuccessExecution',
+						type: 'options',
+						options: [
+							{
+								name: 'All',
+								value: 'all',
+							},
+							{
+								name: 'None',
+								value: 'none',
+							},
+						],
+						default: 'none',
+					},
+					{
+						displayName: 'Execution Timeout',
+						name: 'executionTimeout',
+						type: 'number',
+						default: 500,
+						typeOptions: {
+							maxValue: 3600,
+						},
+					},
+					{
+						displayName: 'Error Workflow',
+						name: 'errorWorkflow',
+						type: 'string',
+						default: '',
+						description: 'The ID of the workflow that contains the error trigger node',
+					},
+					{
+						displayName: 'Timezone',
+						name: 'timezone',
+						type: 'string',
+						default: 'America/New_York',
+					},
+				],
+			},
+		],
+	},
+	{
+		displayName: 'Static Data',
+		name: 'staticData',
+		type: 'string',
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['workflow'],
+				operation: ['create', 'update'],
+			},
+		},
+	},
+];
+
+export const n8nWorkflowFields: INodeProperties[] = [
+	...getAllOperation,
+	...idField,
+	...createOperation,
+];

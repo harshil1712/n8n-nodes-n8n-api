@@ -1,8 +1,9 @@
 import { IExecuteFunctions } from 'n8n-core';
 import {
-	GenericValue,
 	IDataObject,
+	ILoadOptionsFunctions,
 	INodeExecutionData,
+	INodePropertyOptions,
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
@@ -57,6 +58,36 @@ export class N8nApi implements INodeType {
 		],
 	};
 
+	methods = {
+		// loadOptions: {
+		// 	async getNodes(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+		// 		const returnData: INodePropertyOptions[] = [];
+		// 		const { baseUrl, apiKey } = await this.getCredentials('n8nApi');
+		// 		const options = {
+		// 			url: `${baseUrl}`,
+		// 			headers: {
+		// 				// Cookie: `n8n-auth=${apiKey}`,
+		// 			},
+		// 		};
+		// 		const response = await this.helpers.httpRequest(options);
+		// 		console.log(baseUrl);
+		// 		// // const { data } = await apiRequest.call(
+		// 		// 	this,
+		// 		// 	'GET',
+		// 		// 	'',
+		// 		// 	{},
+		// 		// 	{},
+		// 		// 	`${baseUrl}/rest/node-types`,
+		// 		// );
+		// 		console.log(response);
+		// 		// data.map(({ displayName, name }: { displayName: string; name: string }) => {
+		// 		// 	console.log(displayName, name);
+		// 		// });
+		// 		return returnData;
+		// 	},
+		// },
+	};
+
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const length = items.length;
@@ -89,7 +120,14 @@ export class N8nApi implements INodeType {
 						if (additionalFields.activeWorkflows && additionalFields.activeWorkflows === true) {
 							qs.active = true;
 						}
-						responseData = await apiRequestAllItems.call(this, 'GET', endpoint, 'data', {}, qs);
+						responseData = await apiRequestAllItems.call(
+							this,
+							requestMethod,
+							endpoint,
+							'data',
+							{},
+							qs,
+						);
 
 						if (returnAll === false) {
 							const limit = this.getNodeParameter('limit', i) as number;
@@ -106,82 +144,305 @@ export class N8nApi implements INodeType {
 					}
 				}
 			}
-		} else {
-			// prepaire endpoint
-			endpoint += resource === 'execution' ? '/executions' : '/credentials';
-
-			// Prepare request method
-			requestMethod = 'GET';
-			if (operation === 'deleteExecution') requestMethod = 'DELETE';
-
-			for (let i = 0; i < length; i++) {
-				// add other parameters (add value of parameter as array element)
-				['includeData', 'pathId'].forEach((prop) => {
+			if (operation === 'get') {
+				for (let i = 0; i < length; i++) {
 					try {
-						qs[prop] = this.getNodeParameter(prop, i) as string;
+						requestMethod = 'GET';
+						const id = this.getNodeParameter('id', i) as number;
+						responseData = await apiRequest.call(this, requestMethod, `${endpoint}/${id}`, {});
+						returnData.push(responseData);
 					} catch (error) {
-						// nothing bad happens, just for this this prop not happen.
-					}
-				});
-
-				// set limit
-				try {
-					if (!this.getNodeParameter('returnAll', i)) {
-						qs.limit = this.getNodeParameter('limit', i) as number;
-					}
-				} catch (error) {
-					// nothing bad happens, just for this this prop not happen.
-				}
-
-				// add additional fields to body
-				const props = this.getNodeParameter('additionalFields', i) as object;
-				for (const prop in props) {
-					if (props.hasOwnProperty(prop)) {
-						qs[prop] = props[prop as keyof typeof props] as string[];
-						qs[prop] = qs[prop]?.toString();
+						if (this.continueOnFail()) {
+							returnData.push({ error: error.message });
+							continue;
+						}
+						throw error;
 					}
 				}
-
-				// Add the resource id to the endpoint
-				var endpointWithId = null;
-				if (qs.pathId) {
-					endpointWithId = `${endpoint}/${qs.pathId}`;
-					delete qs.pathId;
+			}
+			if (operation === 'delete') {
+				for (let i = 0; i < length; i++) {
+					try {
+						requestMethod = 'DELETE';
+						const id = this.getNodeParameter('id', i) as number;
+						responseData = await apiRequest.call(this, requestMethod, `${endpoint}/${id}`, {});
+						returnData.push(responseData);
+					} catch (error) {
+						if (this.continueOnFail()) {
+							returnData.push({ error: error.message });
+							continue;
+						}
+						throw error;
+					}
 				}
-
-				try {
-					// execute request
-					if (endpointWithId) {
-						// return object, not a list
-						const responseData = await apiRequest.call(
+			}
+			if (operation === 'activate') {
+				for (let i = 0; i < length; i++) {
+					try {
+						requestMethod = 'POST';
+						const id = this.getNodeParameter('id', i) as number;
+						responseData = await apiRequest.call(
 							this,
 							requestMethod,
-							`${endpointWithId}`,
+							`${endpoint}/${id}/activate`,
 							{},
-							qs,
 						);
 						returnData.push(responseData);
-					} else {
-						// return list
+					} catch (error) {
+						if (this.continueOnFail()) {
+							returnData.push({ error: error.message });
+							continue;
+						}
+						throw error;
+					}
+				}
+			}
+			if (operation === 'deactivate') {
+				for (let i = 0; i < length; i++) {
+					try {
+						requestMethod = 'POST';
+						const id = this.getNodeParameter('id', i) as number;
+						responseData = await apiRequest.call(
+							this,
+							requestMethod,
+							`${endpoint}/${id}/deactivate`,
+							{},
+						);
+						returnData.push(responseData);
+					} catch (error) {
+						if (this.continueOnFail()) {
+							returnData.push({ error: error.message });
+							continue;
+						}
+						throw error;
+					}
+				}
+			}
+			if (operation === 'create') {
+				for (let i = 0; i < length; i++) {
+					try {
+						requestMethod = 'POST';
+						const name = this.getNodeParameter('name', i) as string;
+						const nodes = this.getNodeParameter('nodes', i) as IDataObject;
+						const connections = this.getNodeParameter('connections', i) as IDataObject;
+						const settingsUi = this.getNodeParameter('workflowSettingsUi', i) as IDataObject;
+						const staticData = this.getNodeParameter('staticData', i) as string;
+						staticData.length !== 0
+							? Object.assign(body, {
+									name,
+									nodes,
+									connections,
+									settings: settingsUi.settings,
+									staticData,
+							  })
+							: Object.assign(body, {
+									name,
+									nodes,
+									connections,
+									settings: settingsUi.settings,
+							  });
+						responseData = await apiRequest.call(this, requestMethod, `${endpoint}`, body);
+						returnData.push(responseData);
+					} catch (error) {
+						if (this.continueOnFail()) {
+							returnData.push({ error: error.message });
+							continue;
+						}
+						throw error;
+					}
+				}
+			}
+			if (operation === 'update') {
+				for (let i = 0; i < length; i++) {
+					try {
+						requestMethod = 'PUT';
+						const id = this.getNodeParameter('id', i) as string;
+						const name = this.getNodeParameter('name', i) as string;
+						const nodes = this.getNodeParameter('nodes', i) as IDataObject;
+						const connections = this.getNodeParameter('connections', i) as IDataObject;
+						const settingsUi = this.getNodeParameter('workflowSettingsUi', i) as IDataObject;
+						const staticData = this.getNodeParameter('staticData', i) as string;
+						staticData.length !== 0
+							? Object.assign(body, {
+									name,
+									nodes,
+									connections,
+									settings: settingsUi.settings,
+									staticData,
+							  })
+							: Object.assign(body, {
+									name,
+									nodes,
+									connections,
+									settings: settingsUi.settings,
+							  });
+						responseData = await apiRequest.call(this, requestMethod, `${endpoint}/${id}`, body);
+						returnData.push(responseData);
+					} catch (error) {
+						if (this.continueOnFail()) {
+							returnData.push({ error: error.message });
+							continue;
+						}
+						throw error;
+					}
+				}
+			}
+		}
+		if (resource === 'execution') {
+			endpoint = '/executions';
+
+			if (operation === 'getAll') {
+				for (let i = 0; i < length; i++) {
+					try {
+						requestMethod = 'GET';
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						const includeData = this.getNodeParameter('includeData', i) as boolean;
+						const status = this.getNodeParameter('status', i) as string;
+						const workflowId = this.getNodeParameter('workflowId', i) as number;
+						if (includeData) {
+							qs.includeData = includeData as boolean;
+						}
+						if (status) {
+							qs.status = status as string;
+						}
+						if (workflowId) {
+							qs.workflowId = workflowId as number;
+						}
 						responseData = await apiRequestAllItems.call(
 							this,
 							requestMethod,
-							endpointWithId || endpoint,
+							endpoint,
 							'data',
 							{},
 							qs,
 						);
+
+						if (returnAll === false) {
+							const limit = this.getNodeParameter('limit', i) as number;
+							responseData = responseData.splice(0, limit);
+						}
+
 						returnData.push.apply(returnData, responseData);
+					} catch (error) {
+						if (this.continueOnFail()) {
+							returnData.push({ error: error.message });
+							continue;
+						}
+						throw error;
 					}
-				} catch (error) {
-					if (this.continueOnFail()) {
-						returnData.push({ error: error.message });
-						continue;
-					}
-					throw error;
 				}
 			}
-		} // end else
+			if (operation === 'get') {
+				for (let i = 0; i < length; i++) {
+					try {
+						requestMethod = 'GET';
+						const id = this.getNodeParameter('id', i) as number;
+						const includeData = this.getNodeParameter('includeData', i) as boolean;
+						includeData ? (qs.includeData = includeData) : null;
+						responseData = await apiRequest.call(this, requestMethod, `${endpoint}/${id}`, {}, qs);
+						returnData.push(responseData);
+					} catch (error) {
+						if (this.continueOnFail()) {
+							returnData.push({ error: error.message });
+							continue;
+						}
+						throw error;
+					}
+				}
+			}
+			if (operation === 'delete') {
+				for (let i = 0; i < length; i++) {
+					try {
+						requestMethod = 'DELETE';
+						const id = this.getNodeParameter('id', i) as number;
+						responseData = await apiRequest.call(this, requestMethod, `${endpoint}/${id}`, {}, qs);
+						returnData.push(responseData);
+					} catch (error) {
+						if (this.continueOnFail()) {
+							returnData.push({ error: error.message });
+							continue;
+						}
+						throw error;
+					}
+				}
+			}
+		}
+		// else {
+		// 	// prepaire endpoint
+		// 	endpoint += resource === 'execution' ? '/executions' : '/credentials';
+
+		// 	// Prepare request method
+		// 	requestMethod = 'GET';
+		// 	if (operation === 'deleteExecution') requestMethod = 'DELETE';
+
+		// 	for (let i = 0; i < length; i++) {
+		// 		// add other parameters (add value of parameter as array element)
+		// 		['includeData', 'pathId'].forEach((prop) => {
+		// 			try {
+		// 				qs[prop] = this.getNodeParameter(prop, i) as string;
+		// 			} catch (error) {
+		// 				// nothing bad happens, just for this this prop not happen.
+		// 			}
+		// 		});
+
+		// 		// set limit
+		// 		try {
+		// 			if (!this.getNodeParameter('returnAll', i)) {
+		// 				qs.limit = this.getNodeParameter('limit', i) as number;
+		// 			}
+		// 		} catch (error) {
+		// 			// nothing bad happens, just for this this prop not happen.
+		// 		}
+
+		// 		// add additional fields to body
+		// 		const props = this.getNodeParameter('additionalFields', i) as object;
+		// 		for (const prop in props) {
+		// 			if (props.hasOwnProperty(prop)) {
+		// 				qs[prop] = props[prop as keyof typeof props] as string[];
+		// 				qs[prop] = qs[prop]?.toString();
+		// 			}
+		// 		}
+
+		// 		// Add the resource id to the endpoint
+		// 		var endpointWithId = null;
+		// 		if (qs.pathId) {
+		// 			endpointWithId = `${endpoint}/${qs.pathId}`;
+		// 			delete qs.pathId;
+		// 		}
+
+		// 		try {
+		// 			// execute request
+		// 			if (endpointWithId) {
+		// 				// return object, not a list
+		// 				const responseData = await apiRequest.call(
+		// 					this,
+		// 					requestMethod,
+		// 					`${endpointWithId}`,
+		// 					{},
+		// 					qs,
+		// 				);
+		// 				returnData.push(responseData);
+		// 			} else {
+		// 				// return list
+		// 				responseData = await apiRequestAllItems.call(
+		// 					this,
+		// 					requestMethod,
+		// 					endpointWithId || endpoint,
+		// 					'data',
+		// 					{},
+		// 					qs,
+		// 				);
+		// 				returnData.push.apply(returnData, responseData);
+		// 			}
+		// 		} catch (error) {
+		// 			if (this.continueOnFail()) {
+		// 				returnData.push({ error: error.message });
+		// 				continue;
+		// 			}
+		// 			throw error;
+		// 		}
+		// 	}
+		// } // end else
 
 		return [this.helpers.returnJsonArray(returnData)];
 	}

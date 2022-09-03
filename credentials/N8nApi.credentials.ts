@@ -1,6 +1,6 @@
 import { IAuthenticateGeneric, ICredentialType, INodeProperties } from 'n8n-workflow';
 
-export class N8nApi implements ICredentialType {
+export class n8nApi implements ICredentialType {
 	name = 'n8nApi';
 	// eslint-disable-next-line n8n-nodes-base/cred-class-field-display-name-miscased
 	displayName = 'n8n node API';
