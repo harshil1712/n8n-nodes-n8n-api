@@ -1,15 +1,9 @@
 import { IExecuteFunctions } from 'n8n-core';
-import {
-	IDataObject,
-	ILoadOptionsFunctions,
-	INodeExecutionData,
-	INodePropertyOptions,
-	INodeType,
-	INodeTypeDescription,
-} from 'n8n-workflow';
+import { IDataObject, INodeExecutionData, INodeType, INodeTypeDescription } from 'n8n-workflow';
 import { apiRequest, apiRequestAllItems } from './GenericFunctions';
-import { n8nWorkflowDescription, n8nWorkflowFields } from './N8nWorkflowDescription';
+import { n8nWorkflowDescription, n8nWorkflowFields } from './n8nWorkflowDescription';
 import { n8nExecutionDescription, n8nExecutionFields } from './n8nExecutionDescription';
+import { n8nCredentialDescription, n8nCredentialFields } from './n8nCredentialDescription';
 
 export class N8nApi implements INodeType {
 	description: INodeTypeDescription = {
@@ -39,12 +33,16 @@ export class N8nApi implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
-						name: 'Workflow',
-						value: 'workflow',
+						name: 'Credential',
+						value: 'credential',
 					},
 					{
 						name: 'Execution',
 						value: 'execution',
+					},
+					{
+						name: 'Workflow',
+						value: 'workflow',
 					},
 				],
 				default: 'workflow',
@@ -52,9 +50,11 @@ export class N8nApi implements INodeType {
 			// Operations will go here
 			...n8nWorkflowDescription,
 			...n8nExecutionDescription,
+			...n8nCredentialDescription,
 
 			...n8nWorkflowFields,
 			...n8nExecutionFields,
+			...n8nCredentialFields,
 		],
 	};
 
@@ -96,9 +96,7 @@ export class N8nApi implements INodeType {
 
 		const resource = this.getNodeParameter('resource', 0) as string;
 		const operation = this.getNodeParameter('operation', 0) as string;
-		const credentials = (await this.getCredentials('n8nApi')) as IDataObject;
 
-		let returnAll = false;
 		let endpoint = '';
 		let requestMethod = '';
 
@@ -355,7 +353,7 @@ export class N8nApi implements INodeType {
 					try {
 						requestMethod = 'DELETE';
 						const id = this.getNodeParameter('id', i) as number;
-						responseData = await apiRequest.call(this, requestMethod, `${endpoint}/${id}`, {}, qs);
+						responseData = await apiRequest.call(this, requestMethod, `${endpoint}/${id}`, {});
 						returnData.push(responseData);
 					} catch (error) {
 						if (this.continueOnFail()) {
@@ -367,83 +365,70 @@ export class N8nApi implements INodeType {
 				}
 			}
 		}
-		// else {
-		// 	// prepaire endpoint
-		// 	endpoint += resource === 'execution' ? '/executions' : '/credentials';
+		if (resource === 'credential') {
+			endpoint = '/credentials';
 
-		// 	// Prepare request method
-		// 	requestMethod = 'GET';
-		// 	if (operation === 'deleteExecution') requestMethod = 'DELETE';
-
-		// 	for (let i = 0; i < length; i++) {
-		// 		// add other parameters (add value of parameter as array element)
-		// 		['includeData', 'pathId'].forEach((prop) => {
-		// 			try {
-		// 				qs[prop] = this.getNodeParameter(prop, i) as string;
-		// 			} catch (error) {
-		// 				// nothing bad happens, just for this this prop not happen.
-		// 			}
-		// 		});
-
-		// 		// set limit
-		// 		try {
-		// 			if (!this.getNodeParameter('returnAll', i)) {
-		// 				qs.limit = this.getNodeParameter('limit', i) as number;
-		// 			}
-		// 		} catch (error) {
-		// 			// nothing bad happens, just for this this prop not happen.
-		// 		}
-
-		// 		// add additional fields to body
-		// 		const props = this.getNodeParameter('additionalFields', i) as object;
-		// 		for (const prop in props) {
-		// 			if (props.hasOwnProperty(prop)) {
-		// 				qs[prop] = props[prop as keyof typeof props] as string[];
-		// 				qs[prop] = qs[prop]?.toString();
-		// 			}
-		// 		}
-
-		// 		// Add the resource id to the endpoint
-		// 		var endpointWithId = null;
-		// 		if (qs.pathId) {
-		// 			endpointWithId = `${endpoint}/${qs.pathId}`;
-		// 			delete qs.pathId;
-		// 		}
-
-		// 		try {
-		// 			// execute request
-		// 			if (endpointWithId) {
-		// 				// return object, not a list
-		// 				const responseData = await apiRequest.call(
-		// 					this,
-		// 					requestMethod,
-		// 					`${endpointWithId}`,
-		// 					{},
-		// 					qs,
-		// 				);
-		// 				returnData.push(responseData);
-		// 			} else {
-		// 				// return list
-		// 				responseData = await apiRequestAllItems.call(
-		// 					this,
-		// 					requestMethod,
-		// 					endpointWithId || endpoint,
-		// 					'data',
-		// 					{},
-		// 					qs,
-		// 				);
-		// 				returnData.push.apply(returnData, responseData);
-		// 			}
-		// 		} catch (error) {
-		// 			if (this.continueOnFail()) {
-		// 				returnData.push({ error: error.message });
-		// 				continue;
-		// 			}
-		// 			throw error;
-		// 		}
-		// 	}
-		// } // end else
-
+			if (operation === 'get') {
+				requestMethod = 'GET';
+				for (var i = 0; i < length; i++) {
+					try {
+						const credentialTypeName = this.getNodeParameter('credentialTypeName', i);
+						responseData = await apiRequest.call(
+							this,
+							requestMethod,
+							`${endpoint}/schema/${credentialTypeName}`,
+							{},
+						);
+						returnData.push(responseData);
+					} catch (error) {
+						if (this.continueOnFail()) {
+							returnData.push({ error: error.message });
+							continue;
+						}
+						throw error;
+					}
+				}
+			}
+			if (operation === 'delete') {
+				for (let i = 0; i < length; i++) {
+					try {
+						requestMethod = 'DELETE';
+						const id = this.getNodeParameter('id', i) as number;
+						responseData = await apiRequest.call(this, requestMethod, `${endpoint}/${id}`, {});
+						returnData.push(responseData);
+					} catch (error) {
+						if (this.continueOnFail()) {
+							returnData.push({ error: error.message });
+							continue;
+						}
+						throw error;
+					}
+				}
+			}
+			if (operation === 'create') {
+				for (let i = 0; i < length; i++) {
+					try {
+						requestMethod = 'POST';
+						const name = this.getNodeParameter('name', i) as string;
+						const type = this.getNodeParameter('credentialTypeName', i) as string;
+						const data = this.getNodeParameter('data', i) as string;
+						Object.assign(body, {
+							name,
+							type,
+							data: JSON.parse(data),
+						});
+						responseData = await apiRequest.call(this, requestMethod, `${endpoint}`, body);
+						returnData.push(responseData);
+					} catch (error) {
+						if (this.continueOnFail()) {
+							returnData.push({ error: error.message });
+							continue;
+						}
+						throw error;
+					}
+				}
+			}
+		}
 		return [this.helpers.returnJsonArray(returnData)];
 	}
 }
