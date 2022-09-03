@@ -1,5 +1,5 @@
 {
-	"name": "n8n-nodes-n8n-api",
+	"name": "@harshil1712/n8n-nodes-n8n-api",
 	"version": "0.1.3",
 	"description": "n8n node to call the n8n API",
 	"keywords": [
