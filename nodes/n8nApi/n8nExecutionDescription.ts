@@ -6,7 +6,7 @@ export const n8nExecutionDescription: INodeProperties[] = [
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
-		default: 'getExecutions',
+		default: 'getAll',
 		displayOptions: {
 			show: {
 				resource: ['execution'],
@@ -14,25 +14,72 @@ export const n8nExecutionDescription: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Get Executions',
-				value: 'getExecutions',
-				action: 'Get executions',
+				name: 'Delete',
+				value: 'delete',
+				action: 'Delete an execution',
 			},
 			{
-				name: 'Get Execution',
-				value: 'getExecution',
+				name: 'Get',
+				value: 'get',
 				action: 'Get execution',
 			},
 			{
-				name: 'Delete Execution',
-				value: 'deleteExecution',
-				action: 'Delete execution',
+				name: 'Get All',
+				value: 'getAll',
+				action: 'Get executions',
 			},
 		],
 	},
 ];
 
+const idField: INodeProperties[] = [
+	{
+		displayName: 'ID',
+		name: 'id',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['execution'],
+				operation: ['get', 'delete'],
+			},
+		},
+		default: '',
+		description: 'ID of the workflow you want to fetch',
+	},
+];
+
 const getAllOperation: INodeProperties[] = [
+	{
+		displayName: 'Return All',
+		name: 'returnAll',
+		type: 'boolean',
+		displayOptions: {
+			show: {
+				resource: ['execution'],
+				operation: ['getAll'],
+			},
+		},
+		default: false,
+		description: 'Whether to return all results or only up to a given limit',
+	},
+	{
+		displayName: 'Limit',
+		name: 'limit',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['execution'],
+				operation: ['getAll'],
+				returnAll: [false],
+			},
+		},
+		typeOptions: {
+			minValue: 1,
+			maxValue: 250,
+		},
+		default: 50,
+		description: 'Max number of results to return',
+	},
 	{
 		displayName: 'Include Data',
 		name: 'includeData',
@@ -41,62 +88,51 @@ const getAllOperation: INodeProperties[] = [
 		description: "Whether or not to include the execution's detailed data",
 		displayOptions: {
 			show: {
-				'/operation': ['getExecutions', 'getExecution'],
-			},
-		},
-	},
-	{
-		displayName: 'ID',
-		name: 'pathId',
-		type: 'number',
-		required: true,
-		default: 0,
-		description: 'The ID of the execution or credential',
-		displayOptions: {
-			show: {
-				'/operation': ['getExecution', 'deleteExecution', 'deleteCredential'],
-			},
-		},
-	},
-	{
-		displayName: 'Additional Fields',
-		name: 'additionalFields',
-		type: 'collection',
-		default: {},
-		displayOptions: {
-			show: {
+				operation: ['getAll', 'get'],
 				resource: ['execution'],
 			},
 		},
+	},
+	{
+		displayName: 'Status',
+		name: 'status',
+		type: 'options',
+		description: 'Status to filter the executions by',
 		options: [
 			{
-				displayName: 'Status',
-				name: 'status',
-				type: 'options',
-				description: 'Status to filter the executions by',
-				options: [
-					{
-						name: 'Error',
-						value: 'error',
-					},
-					{
-						name: 'Success',
-						value: 'success',
-					},
-					{
-						name: 'Waiting',
-						value: 'waiting',
-					},
-				],
-				default: 'success',
-				displayOptions: {
-					show: {
-						'/operation': ['getExecutions'],
-					},
-				},
+				name: 'Error',
+				value: 'error',
+			},
+			{
+				name: 'Success',
+				value: 'success',
+			},
+			{
+				name: 'Waiting',
+				value: 'waiting',
 			},
 		],
+		default: 'success',
+		displayOptions: {
+			show: {
+				operation: ['getAll'],
+				resource: ['execution'],
+			},
+		},
+	},
+	{
+		displayName: 'Workflow ID',
+		name: 'workflowId',
+		type: 'number',
+		default: '',
+		description: 'Workflow to filter the executions by',
+		displayOptions: {
+			show: {
+				operation: ['getAll'],
+				resource: ['execution'],
+			},
+		},
 	},
 ];
 
-export const n8nExecutionFields: INodeProperties[] = [...getAllOperation];
+export const n8nExecutionFields: INodeProperties[] = [...getAllOperation, ...idField];

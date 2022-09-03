@@ -6,7 +6,7 @@ export const n8nCredentialDescription: INodeProperties[] = [
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
-		default: 'createCredential',
+		default: 'get',
 		displayOptions: {
 			show: {
 				resource: ['credential'],
@@ -14,54 +14,80 @@ export const n8nCredentialDescription: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Create Credential',
-				value: 'createCredential',
-				action: 'Create credential',
+				name: 'Create',
+				value: 'create',
+				action: 'Create a credential',
 			},
 			{
-				name: 'Delete Credential',
-				value: 'deleteCredential',
-				action: 'Delete credential',
+				name: 'Delete',
+				value: 'delete',
+				action: 'Delete a credential',
 			},
 			{
-				name: 'Get Credential Schema',
-				value: 'getCredentialSchema',
-				action: 'Get credential schema',
+				name: 'Get',
+				value: 'get',
+				action: 'Get a credential',
 			},
 		],
 	},
 ];
 
-const getAllOperation: INodeProperties[] = [
+const credentialOperationFields: INodeProperties[] = [
 	{
-		displayName: 'Object',
-		name: 'object',
-		type: 'json',
+		displayName: 'Name',
+		name: 'name',
 		default: '',
-		placeholder: '{ "name": "", "type": "", "data": { "token": "" } }',
-		description: 'Object with credential to be add',
-		typeOptions: {
-			alwaysOpenEditWindow: true,
-		},
+		description: 'Name of the new credential',
+		required: true,
+		type: 'string',
 		displayOptions: {
 			show: {
-				'/operation': ['createCredential'],
+				resource: ['credential'],
+				operation: ['create'],
 			},
 		},
 	},
 	{
-		displayName: 'Schema Name',
-		name: 'schemaName',
-		type: 'string',
+		displayName: 'Credential Type Name',
+		name: 'credentialTypeName',
 		default: '',
-		placeholder: 'freshdeskApi',
-		description: 'Name of the schema to use',
+		required: true,
+		type: 'string',
 		displayOptions: {
 			show: {
-				'/operation': ['getCredentialSchema'],
+				resource: ['credential'],
+				operation: ['get', 'create'],
+			},
+		},
+	},
+	{
+		displayName: 'ID',
+		name: 'id',
+		default: '',
+		description: 'The credential ID that needs to be deleted',
+		required: true,
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['credential'],
+				operation: ['delete'],
+			},
+		},
+	},
+	{
+		displayName: 'Data',
+		name: 'data',
+		default: '',
+		description: 'JSON data of the credential to be created',
+		required: true,
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['credential'],
+				operation: ['create'],
 			},
 		},
 	},
 ];
 
-export const n8nCredentialFields: INodeProperties[] = [...getAllOperation];
+export const n8nCredentialFields: INodeProperties[] = [...credentialOperationFields];
