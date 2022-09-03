@@ -336,7 +336,7 @@ export class N8nApi implements INodeType {
 						requestMethod = 'GET';
 						const id = this.getNodeParameter('id', i) as number;
 						const includeData = this.getNodeParameter('includeData', i) as boolean;
-						includeData ? (qs.includeData = includeData) : null;
+						includeData ? (qs.includeData = includeData) : {};
 						responseData = await apiRequest.call(this, requestMethod, `${endpoint}/${id}`, {}, qs);
 						returnData.push(responseData);
 					} catch (error) {
